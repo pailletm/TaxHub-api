@@ -15,7 +15,7 @@ def init_app():
     app_globals['app'] = app
 
 
-    from apptax.routes import adresses
+    from apptax.bibtaxons.routes import adresses
     app.register_blueprint(adresses, url_prefix='/bib_taxons')
 
     from apptax.taxref.routes import adresses
