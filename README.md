@@ -3,9 +3,9 @@
 Essaie de réécriture en flask de l'api de TaxHub.
 
 Manque les routes :
- /taxonsattribut/{id}/{value}
- /bibtaxons/taxonomie
- /biblistes + toutes les autres routes
+ * /taxonsattribut/{id}/{value}
+ * /bibtaxons/taxonomie
+ * /biblistes + toutes les autres routes
 
 
 ##Run serveur
