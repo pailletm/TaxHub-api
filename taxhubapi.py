@@ -15,12 +15,14 @@ def init_app():
     app_globals['app'] = app
 
 
-    from apptax.bibtaxons.routes import adresses
-    app.register_blueprint(adresses, url_prefix='/bib_taxons')
+    from apptax.taxonomie.routesbibtaxons import adresses
+    app.register_blueprint(adresses, url_prefix='/bibtaxons')
 
-    from apptax.taxref.routes import adresses
+    from apptax.taxonomie.routestaxref import adresses
     app.register_blueprint(adresses, url_prefix='/taxref')
 
+    from apptax.taxonomie.routesbibattributs import adresses
+    app.register_blueprint(adresses, url_prefix='/bibattributs')
 
     return app
 

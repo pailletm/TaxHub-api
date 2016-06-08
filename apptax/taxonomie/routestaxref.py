@@ -18,7 +18,7 @@ adresses = Blueprint('taxref', __name__)
 def getTaxrefList():
     return genericTaxrefList(False, request.args)
 
-@adresses.route('/bibtaxons', methods=['GET'])
+@adresses.route('/bibtaxons/', methods=['GET'])
 def getTaxrefBibtaxonList():
     return genericTaxrefList(True, request.args)
 
@@ -88,13 +88,14 @@ def getDistinctField(field):
     return jsonify(sqlautils.serializeQuery(results,q.column_descriptions))
 
 @adresses.route('/hierarchie/<rang>', methods=['GET'])
+@sqlautils.json_resp
 def getTaxrefHierarchie(rang):
-    return jsonify(genericHierarchieSelect('vm_taxref_hierarchie', rang, request.args))
+    print(genericHierarchieSelect('vm_taxref_hierarchie', rang, request.args))
+    return genericHierarchieSelect('vm_taxref_hierarchie', rang, request.args)
 
 @adresses.route('/hierarchiebibtaxons/<rang>', methods=['GET'])
 def getTaxrefHierarchieBibTaxons(rang):
     return jsonify(genericHierarchieSelect('v_taxref_hierarchie_bibtaxons', rang, request.args))
-
 
 def genericTaxrefList(inBibtaxon, parameters):
 
@@ -112,7 +113,7 @@ def genericTaxrefList(inBibtaxon, parameters):
     offset = parameters.get('page') if parameters.get('page') else 0
 
     for param in parameters:
-        if param in tableTaxref.columns:
+        if param in tableTaxref.columns and parameters[param] != '' :
             col = getattr(tableTaxref.tableDef.columns,param)
             q = q.filter(col == parameters[param])
         elif param == 'is_ref':
@@ -121,7 +122,6 @@ def genericTaxrefList(inBibtaxon, parameters):
             q = q.filter(tableTaxref.tableDef.columns.lb_nom.ilike(parameters[param]+'%'))
         elif param == 'is_inbibtaxons':
             q = q.filter(tableBibTaxons.tableDef.columns.cd_nom.isnot(None))
-
     results = q.limit(limit).offset(offset).all()
     return jsonify(sqlautils.serializeQuery(results,q.column_descriptions))
 
@@ -142,4 +142,4 @@ def genericHierarchieSelect(tableName, rang, parameters):
             q = q.filter(tableHierarchy.tableDef.columns.lb_nom.ilike(parameters[param]+'%'))
 
     results = q.limit(limit).all()
-    return jsonify(sqlautils.serializeQuery(results,q.column_descriptions))
+    return sqlautils.serializeQuery(results,q.column_descriptions)

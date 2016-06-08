@@ -1,6 +1,6 @@
 #coding: utf8
 from flask import jsonify, json, Blueprint
-from flask import request
+from flask import request, Response
 
 from taxhubapi import init_app
 from taxhubapi import db
@@ -43,13 +43,8 @@ def get_bibtaxons():
         obj['is_doublon'] = False
 
         #Ajout des synonymes
-        q = db.session.query(BibTaxons.id_taxon)\
-            .join(BibTaxons.taxref)\
-            .filter(Taxref.cd_ref== func.taxonomie.find_cdref(obj['cd_nom']))\
-            .filter(BibTaxons.id_taxon != obj['id_taxon'])
-        results =q.all()
-
-        if q.count() > 0 :
+        (nbsyn, results) = getBibTaxonSynonymes(obj['id_taxon'], obj['cd_nom'])
+        if nbsyn > 0 :
             obj['is_doublon'] = True
             obj['synonymes'] = [i.id_taxon for i in results]
         taxonsList.append(obj)
@@ -57,18 +52,32 @@ def get_bibtaxons():
     return taxonsList
 
 
+@adresses.route('/<id_taxon>', methods=['GET'])
+@sqlautils.json_resp
+def getOne_bibtaxons(id_taxon):
+    bibTaxon =db.session.query(BibTaxons).filter_by(id_taxon=id_taxon).first()
+
+    obj = bibTaxon.as_dict()
+    obj['is_doublon'] = False
+    #Ajout des synonymes
+    (nbsyn, results) = getBibTaxonSynonymes(id_taxon, bibTaxon.cd_nom)
+    if nbsyn > 0 :
+        obj['is_doublon'] = True
+        obj['synonymes'] = [i.id_taxon for i in results]
+
+    #Ajout des attributs
+    obj['attributs'] = [dict(attr.as_dict().items() | attr.bib_attribut.as_dict().items()) for attr in  bibTaxon.attributs ]
+
+    return obj
+
 @adresses.route('/', methods=['POST', 'PUT'])
 @adresses.route('/<id_taxon>', methods=['POST', 'PUT'])
-@sqlautils.json_resp
 def insertUpdate_bibtaxons(id_taxon=None):
-
-    if request.headers['Content-Type'] == 'application/json':
-        data = request.get_json(silent=True)
-    else:
-        return "415 Unsupported Media Type ;)"
+    data = request.get_json(silent=True)
 
     if id_taxon:
         bibTaxon =db.session.query(BibTaxons).filter_by(id_taxon=id_taxon).first()
+        message = "Taxon mis à jour"
     else :
         bibTaxon = BibTaxons(
             cd_nom = data['cd_nom'],
@@ -76,6 +85,7 @@ def insertUpdate_bibtaxons(id_taxon=None):
             nom_francais =  data['nom_francais'],
             auteur =data['auteur'] if 'auteur' in data else None
         )
+        message = "Taxon ajouté"
     db.session.add(bibTaxon)
     db.session.commit()
 
@@ -97,4 +107,22 @@ def insertUpdate_bibtaxons(id_taxon=None):
         db.session.add(attVal)
     db.session.commit()
 
+    return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+
+@adresses.route('/<id_taxon>', methods=['DELETE'])
+@sqlautils.json_resp
+def delete_bibtaxons(id_taxon):
+    bibTaxon =db.session.query(BibTaxons).filter_by(id_taxon=id_taxon).first()
+    db.session.delete(bibTaxon)
+    db.session.commit()
+
     return bibTaxon.as_dict()
+
+
+def getBibTaxonSynonymes(id_taxon, cd_nom):
+    q = db.session.query(BibTaxons.id_taxon)\
+        .join(BibTaxons.taxref)\
+        .filter(Taxref.cd_ref== func.taxonomie.find_cdref(cd_nom))\
+        .filter(BibTaxons.id_taxon != id_taxon)
+    results =q.all()
+    return (q.count(), results)

@@ -1,5 +1,6 @@
 venv_flask
 config.py
+static
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
