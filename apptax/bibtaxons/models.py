@@ -1,7 +1,7 @@
 #coding: utf8
 from taxhubapi import db
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Sequence
 
 class BibTaxons(db.Model):
     __tablename__ = 'bib_taxons'
@@ -12,6 +12,7 @@ class BibTaxons(db.Model):
     nom_francais = db.Column(db.Unicode)
     auteur = db.Column(db.Unicode)
     taxref = db.relationship("Taxref", lazy='select')
+    attributs = db.relationship("CorTaxonAttribut", lazy='select')
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
