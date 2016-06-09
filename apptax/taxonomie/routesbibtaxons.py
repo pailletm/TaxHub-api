@@ -6,6 +6,7 @@ from server import init_app, db
 from ..utils import sqlalchemy as sqlautils
 from .models import BibTaxons, Taxref,CorTaxonAttribut
 from sqlalchemy import create_engine, MetaData, select, Table, func
+import importlib
 
 fnauth = importlib.import_module("apptax.flaskmodule-UserHub-auth.routes")
 
