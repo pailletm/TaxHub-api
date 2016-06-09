@@ -71,6 +71,7 @@ def getOne_bibtaxons(id_taxon):
 
 @adresses.route('/', methods=['POST', 'PUT'])
 @adresses.route('/<id_taxon>', methods=['POST', 'PUT'])
+@fnauth.check_auth(4)
 def insertUpdate_bibtaxons(id_taxon=None):
     data = request.get_json(silent=True)
 
@@ -109,6 +110,7 @@ def insertUpdate_bibtaxons(id_taxon=None):
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 
 @adresses.route('/<id_taxon>', methods=['DELETE'])
+@fnauth.check_auth(4)
 @sqlautils.json_resp
 def delete_bibtaxons(id_taxon):
     bibTaxon =db.session.query(BibTaxons).filter_by(id_taxon=id_taxon).first()

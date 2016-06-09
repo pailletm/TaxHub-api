@@ -1,8 +1,9 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-
+import importlib
 db = SQLAlchemy()
 app_globals = {}
+
 
 def init_app():
     if app_globals.get('app', False):
@@ -14,6 +15,8 @@ def init_app():
     db.init_app(app)
     app_globals['app'] = app
 
+    routesAuth = importlib.import_module("apptax.flaskmodule-UserHub-auth.routes")
+    app.register_blueprint(routesAuth.routes, url_prefix='/auth')
 
     from apptax.taxonomie.routesbibtaxons import adresses
     app.register_blueprint(adresses, url_prefix='/bibtaxons')
