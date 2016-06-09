@@ -7,6 +7,8 @@ from ..utils import sqlalchemy as sqlautils
 from .models import BibTaxons, Taxref,CorTaxonAttribut
 from sqlalchemy import create_engine, MetaData, select, Table, func
 
+fnauth = importlib.import_module("apptax.flaskmodule-UserHub-auth.routes")
+
 adresses = Blueprint('bib_taxons', __name__)
 
 @adresses.route('/', methods=['GET'])
