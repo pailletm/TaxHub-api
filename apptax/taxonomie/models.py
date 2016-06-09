@@ -1,5 +1,5 @@
 #coding: utf8
-from taxhubapi import db
+from server import db
 
 from sqlalchemy import ForeignKey, Sequence
 

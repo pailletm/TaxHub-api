@@ -7,7 +7,7 @@ from flask import jsonify,  Response
 import json
 
 from functools import wraps
-from taxhubapi import init_app, db
+from server import init_app, db
 
 from sqlalchemy import create_engine, MetaData, Table
 

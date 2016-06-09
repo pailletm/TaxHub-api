@@ -2,8 +2,7 @@
 from flask import jsonify, json, Blueprint
 from flask import request, Response
 
-from taxhubapi import init_app
-from taxhubapi import db
+from server import init_app, db
 from ..utils import sqlalchemy as sqlautils
 from .models import BibTaxons, Taxref,CorTaxonAttribut
 from sqlalchemy import create_engine, MetaData, select, Table, func

@@ -3,8 +3,7 @@ from flask import jsonify, Blueprint
 
 from flask import request
 
-from taxhubapi import init_app
-from taxhubapi import db
+from server import init_app, db
 from ..utils import sqlalchemy as sqlautils
 
 from sqlalchemy import select
