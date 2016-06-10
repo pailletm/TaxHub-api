@@ -22,7 +22,7 @@ def getTaxrefBibtaxonList():
     return genericTaxrefList(True, request.args)
 
 
-@adresses.route('/<id>', methods=['GET'])
+@adresses.route('/<int:id>', methods=['GET'])
 def getTaxrefDetail(id):
     tableTaxref = sqlautils.GenericTable('taxonomie.taxref', 'taxonomie')
     tableBibTaxrefHabitats = sqlautils.GenericTable('taxonomie.bib_taxref_habitats', 'taxonomie')

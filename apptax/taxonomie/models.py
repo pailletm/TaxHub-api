@@ -13,6 +13,7 @@ class BibTaxons(db.Model):
     auteur = db.Column(db.Unicode)
     taxref = db.relationship("Taxref", lazy='select')
     attributs = db.relationship("CorTaxonAttribut", lazy='select')
+    listes = db.relationship("CorTaxonListe", lazy='select')
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -55,7 +56,6 @@ class BibAttributs(db.Model):
     def __repr__(self):
         return '<BibAttributs %r>'% self.nom_attribut
 
-
 class Taxref(db.Model):
     __tablename__ = 'taxref'
     __table_args__ = {'schema':'taxonomie'}
@@ -84,3 +84,33 @@ class Taxref(db.Model):
 
     def __repr__(self):
         return '<Taxref %r>'% self.nom_complet
+
+class CorTaxonListe(db.Model):
+    __tablename__ = 'cor_taxon_liste'
+    __table_args__ = {'schema':'taxonomie'}
+    id_liste = db.Column(db.Integer, ForeignKey("taxonomie.bib_listes.id_liste"), nullable=False, primary_key=True)
+    id_taxon = db.Column(db.Integer, ForeignKey("taxonomie.bib_taxons.id_taxon"), nullable=False, primary_key=True)
+    bib_taxon = db.relationship("BibTaxons")
+    bib_liste = db.relationship("BibListes")
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    def __repr__(self):
+        return '<CorTaxonListe %r>'% self.id_liste
+
+class BibListes(db.Model):
+    __tablename__ = 'bib_listes'
+    __table_args__ = {'schema':'taxonomie'}
+    id_liste = db.Column(db.Integer, primary_key=True)
+    nom_liste = db.Column(db.Unicode)
+    desc_liste = db.Column(db.Text)
+    picto = db.Column(db.Unicode)
+    regne = db.Column(db.Unicode)
+    group2_inpn = db.Column(db.Unicode)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    def __repr__(self):
+        return '<BibListes %r>'% self.nom_attribut

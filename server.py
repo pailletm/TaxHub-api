@@ -27,6 +27,8 @@ def init_app():
     from apptax.taxonomie.routesbibattributs import adresses
     app.register_blueprint(adresses, url_prefix='/bibattributs')
 
+    from apptax.taxonomie.routesbiblistes import adresses
+    app.register_blueprint(adresses, url_prefix='/biblistes')
     return app
 
 

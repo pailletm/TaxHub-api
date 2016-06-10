@@ -10,7 +10,7 @@ from sqlalchemy import select, or_
 adresses = Blueprint('bib_attribut', __name__)
 
 @adresses.route('/', methods=['GET'])
-@adresses.route('/<id>', methods=['GET'])
+@adresses.route('/<int:id>', methods=['GET'])
 @sqlautils.json_resp
 def get_bibattributs(id = None):
     if id:

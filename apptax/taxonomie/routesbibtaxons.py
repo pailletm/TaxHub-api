@@ -4,7 +4,7 @@ from flask import request, Response
 
 from server import init_app, db
 from ..utils import sqlalchemy as sqlautils
-from .models import BibTaxons, Taxref,CorTaxonAttribut
+from .models import BibTaxons, Taxref, CorTaxonAttribut, CorTaxonListe
 from sqlalchemy import create_engine, MetaData, select, Table, func
 import importlib
 
@@ -54,7 +54,7 @@ def get_bibtaxons():
     return taxonsList
 
 
-@adresses.route('/<id_taxon>', methods=['GET'])
+@adresses.route('/<int:id_taxon>', methods=['GET'])
 @sqlautils.json_resp
 def getOne_bibtaxons(id_taxon):
     bibTaxon =db.session.query(BibTaxons).filter_by(id_taxon=id_taxon).first()
@@ -70,14 +70,15 @@ def getOne_bibtaxons(id_taxon):
     #Ajout des attributs
     obj['attributs'] = [dict(attr.as_dict().items() | attr.bib_attribut.as_dict().items()) for attr in  bibTaxon.attributs ]
 
+    #Ajout des listes
+    obj['listes'] = [dict(liste.as_dict().items() | liste.bib_liste.as_dict().items()) for liste in  bibTaxon.listes ]
     return obj
 
 @adresses.route('/', methods=['POST', 'PUT'])
-@adresses.route('/<id_taxon>', methods=['POST', 'PUT'])
-@fnauth.check_auth(4)
+@adresses.route('/<int:id_taxon>', methods=['POST', 'PUT'])
+# @fnauth.check_auth(4)
 def insertUpdate_bibtaxons(id_taxon=None):
     data = request.get_json(silent=True)
-
     if id_taxon:
         bibTaxon =db.session.query(BibTaxons).filter_by(id_taxon=id_taxon).first()
         message = "Taxon mis à jour"
@@ -92,11 +93,10 @@ def insertUpdate_bibtaxons(id_taxon=None):
     db.session.add(bibTaxon)
     db.session.commit()
 
-    #Traitement des attibuts
     id_taxon = bibTaxon.id_taxon
 
+    ####--------------Traitement des attibuts-----------------
     #Suppression des attributs exisitants
-    bibTaxonAtts = bibTaxon.attributs
     for bibTaxonAtt in bibTaxon.attributs:
          db.session.delete(bibTaxonAtt)
     db.session.commit()
@@ -110,9 +110,22 @@ def insertUpdate_bibtaxons(id_taxon=None):
         db.session.add(attVal)
     db.session.commit()
 
+    ####--------------Traitement des listes-----------------
+    #Suppression des listes exisitantes
+    for bibTaxonLst in bibTaxon.listes:
+        print( bibTaxonLst)
+        db.session.delete(bibTaxonLst)
+    db.session.commit()
+    for lst in data['listes']:
+        listTax = CorTaxonListe (
+            id_liste = lst['id_liste'],
+            id_taxon = id_taxon
+        )
+        db.session.add(listTax)
+    db.session.commit()
     return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
 
-@adresses.route('/<id_taxon>', methods=['DELETE'])
+@adresses.route('/<int:id_taxon>', methods=['DELETE'])
 @fnauth.check_auth(4)
 @sqlautils.json_resp
 def delete_bibtaxons(id_taxon):
