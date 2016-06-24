@@ -2,7 +2,7 @@
 from flask import jsonify, json, Blueprint
 from flask import request, Response
 
-from server import init_app, db
+from server import db
 from ..utils import sqlalchemy as sqlautils
 from .models import BibTaxons, Taxref, CorTaxonAttribut, CorTaxonListe
 from sqlalchemy import create_engine, MetaData, select, Table, func

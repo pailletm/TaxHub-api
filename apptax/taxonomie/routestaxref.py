@@ -3,7 +3,7 @@ from flask import jsonify, Blueprint
 
 from flask import request
 
-from server import init_app, db
+from server import db
 from ..utils import sqlalchemy as sqlautils
 
 from sqlalchemy import select
