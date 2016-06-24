@@ -1,4 +1,3 @@
-
 #coding: utf8
 '''
 Fonctions utilitaires
@@ -7,13 +6,13 @@ from flask import jsonify,  Response
 import json
 
 from functools import wraps
-from server import init_app, db
+from server import app_globals, db
 
 from sqlalchemy import create_engine, MetaData, Table
 
 class GenericTable:
     def __init__(self, tableName, schemaName):
-        engine = create_engine(init_app().config['SQLALCHEMY_DATABASE_URI'])
+        engine = create_engine(app_globals['app'].config['SQLALCHEMY_DATABASE_URI'])
         meta = MetaData(bind=engine)
         meta.reflect(schema=schemaName, views=True)
         self.tableDef = meta.tables[tableName]
@@ -28,12 +27,9 @@ def serializeQuery( data, columnDef):
     ]
     return rows
 
-
 def serializeQueryOneResult( row, columnDef):
     row = {c['name'] : getattr(row, c['name']) for c in columnDef if getattr(row, c['name']) != None }
     return row
-
-
 
 def _normalize(obj, columns):
     '''
@@ -47,8 +43,6 @@ def _normalize(obj, columns):
         else:
             out[col.name] = getattr(obj, col.name)
     return out
-
-
 
 def normalize(obj, *parents):
     '''
@@ -64,8 +58,6 @@ def normalize(obj, *parents):
         for p in parents:
             out.update(_normalize(obj, p().__table__.columns))
         return out
-
-
 
 def json_resp(fn):
     '''
