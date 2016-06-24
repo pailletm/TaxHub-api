@@ -1,9 +1,9 @@
+#coding: utf8
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import importlib
 db = SQLAlchemy()
 app_globals = {}
-
 
 def init_app():
     if app_globals.get('app', False):
@@ -14,7 +14,6 @@ def init_app():
     app.config.from_pyfile('config.py')
     db.init_app(app)
     app_globals['app'] = app
-
 
     from apptax.index import routes
     app.register_blueprint(routes, url_prefix='/')
@@ -34,7 +33,6 @@ def init_app():
     from apptax.taxonomie.routesbiblistes import adresses
     app.register_blueprint(adresses, url_prefix='/api/biblistes')
     return app
-
 
 if __name__ == '__main__':
     init_app().run(debug=True)
