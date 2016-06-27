@@ -7,12 +7,12 @@ import json
 
 from functools import wraps
 
-from server import app_globals, db
+from server import init_app, db
 from sqlalchemy import Table, create_engine, MetaData
 
 class GenericTable:
     def __init__(self, tableName, schemaName):
-        engine = create_engine(app_globals['app'].config['SQLALCHEMY_DATABASE_URI'])
+        engine = create_engine(init_app().config['SQLALCHEMY_DATABASE_URI'])
         meta = MetaData(bind=engine)
         meta.reflect(schema=schemaName, views=True)
         self.tableDef = meta.tables[tableName]

@@ -113,11 +113,11 @@ def genericTaxrefList(inBibtaxon, parameters):
         if param in tableTaxref.columns and parameters[param] != '' :
             col = getattr(tableTaxref.tableDef.columns,param)
             q = q.filter(col == parameters[param])
-        elif param == 'is_ref':
+        elif param == 'is_ref' and parameters[param] == True :
             q = q.filter(tableTaxref.tableDef.columns.cd_nom == tableTaxref.tableDef.columns.cd_ref)
-        elif param == 'ilike':
+        elif param == 'ilike' :
             q = q.filter(tableTaxref.tableDef.columns.lb_nom.ilike(parameters[param]+'%'))
-        elif param == 'is_inbibtaxons':
+        elif param == 'is_inbibtaxons' and parameters[param] == True :
             q = q.filter(tableBibTaxons.tableDef.columns.cd_nom.isnot(None))
     results = q.limit(limit).offset(offset).all()
     return jsonify(serializeQuery(results,q.column_descriptions))
