@@ -4,12 +4,10 @@ from flask import jsonify, Blueprint
 from flask import request
 
 from server import db
-from ..utils import sqlalchemy as sqlautils
+
+from ..utils.utilssqlalchemy import json_resp, GenericTable, serializeQuery
 
 from sqlalchemy import select
-
-#For debug
-import pprint
 
 adresses = Blueprint('taxref', __name__)
 
@@ -24,11 +22,11 @@ def getTaxrefBibtaxonList():
 
 @adresses.route('/<int:id>', methods=['GET'])
 def getTaxrefDetail(id):
-    tableTaxref = sqlautils.GenericTable('taxonomie.taxref', 'taxonomie')
-    tableBibTaxrefHabitats = sqlautils.GenericTable('taxonomie.bib_taxref_habitats', 'taxonomie')
-    tableBibTaxrefRangs = sqlautils.GenericTable('taxonomie.bib_taxref_rangs', 'taxonomie')
-    tableBibTaxrefStatuts = sqlautils.GenericTable('taxonomie.bib_taxref_statuts', 'taxonomie')
-    tableStProtection = sqlautils.GenericTable('taxonomie.taxref_protection_articles', 'taxonomie')
+    tableTaxref = GenericTable('taxonomie.taxref', 'taxonomie')
+    tableBibTaxrefHabitats = GenericTable('taxonomie.bib_taxref_habitats', 'taxonomie')
+    tableBibTaxrefRangs = GenericTable('taxonomie.bib_taxref_rangs', 'taxonomie')
+    tableBibTaxrefStatuts = GenericTable('taxonomie.bib_taxref_statuts', 'taxonomie')
+    tableStProtection = GenericTable('taxonomie.taxref_protection_articles', 'taxonomie')
 
     dfCdNom = tableTaxref.tableDef.columns['cd_nom']
     q = db.session.query(
@@ -43,7 +41,7 @@ def getTaxrefDetail(id):
         .filter(dfCdNom == id)
 
     results = q.one()
-    taxon =sqlautils.serializeQueryOneResult( results, q.column_descriptions)
+    taxon =serializeQueryOneResult( results, q.column_descriptions)
 
     qsynonymes = db.session.query(
                     tableTaxref.tableDef.columns.cd_nom,
@@ -69,7 +67,7 @@ def getTaxrefDetail(id):
 
 @adresses.route('/distinct/<field>', methods=['GET'])
 def getDistinctField(field):
-    tableTaxref = sqlautils.GenericTable('taxonomie.taxref', 'taxonomie')
+    tableTaxref = GenericTable('taxonomie.taxref', 'taxonomie')
 
     dfield = tableTaxref.tableDef.columns[field]
     q = db.session.query(dfield).distinct(dfield)
@@ -84,10 +82,10 @@ def getDistinctField(field):
             q = q.filter(dfield.ilike(request.args[param]+'%'))
 
     results = q.limit(limit).all()
-    return jsonify(sqlautils.serializeQuery(results,q.column_descriptions))
+    return jsonify(serializeQuery(results,q.column_descriptions))
 
 @adresses.route('/hierarchie/<rang>', methods=['GET'])
-@sqlautils.json_resp
+@json_resp
 def getTaxrefHierarchie(rang):
     print(genericHierarchieSelect('vm_taxref_hierarchie', rang, request.args))
     return genericHierarchieSelect('vm_taxref_hierarchie', rang, request.args)
@@ -98,8 +96,8 @@ def getTaxrefHierarchieBibTaxons(rang):
 
 def genericTaxrefList(inBibtaxon, parameters):
 
-    tableTaxref = sqlautils.GenericTable('taxonomie.taxref', 'taxonomie')
-    tableBibTaxons = sqlautils.GenericTable('taxonomie.bib_taxons', 'taxonomie')
+    tableTaxref = GenericTable('taxonomie.taxref', 'taxonomie')
+    tableBibTaxons = GenericTable('taxonomie.bib_taxons', 'taxonomie')
 
     q = db.session.query(tableTaxref.tableDef, tableBibTaxons.tableDef.columns.id_taxon)
     if inBibtaxon == True :
@@ -122,10 +120,10 @@ def genericTaxrefList(inBibtaxon, parameters):
         elif param == 'is_inbibtaxons':
             q = q.filter(tableBibTaxons.tableDef.columns.cd_nom.isnot(None))
     results = q.limit(limit).offset(offset).all()
-    return jsonify(sqlautils.serializeQuery(results,q.column_descriptions))
+    return jsonify(serializeQuery(results,q.column_descriptions))
 
 def genericHierarchieSelect(tableName, rang, parameters):
-    tableHierarchy = sqlautils.GenericTable('taxonomie.'+tableName, 'taxonomie')
+    tableHierarchy = GenericTable('taxonomie.'+tableName, 'taxonomie')
 
     dfRang = tableHierarchy.tableDef.columns['id_rang']
     q = db.session.query(tableHierarchy.tableDef)\
@@ -141,4 +139,4 @@ def genericHierarchieSelect(tableName, rang, parameters):
             q = q.filter(tableHierarchy.tableDef.columns.lb_nom.ilike(parameters[param]+'%'))
 
     results = q.limit(limit).all()
-    return sqlautils.serializeQuery(results,q.column_descriptions)
+    return serializeQuery(results,q.column_descriptions)

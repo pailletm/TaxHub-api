@@ -3,7 +3,8 @@ from flask import jsonify, json, Blueprint
 from flask import request, Response
 
 from server import db
-from ..utils import sqlalchemy as sqlautils
+
+from ..utils.utilssqlalchemy import json_resp
 from .models import BibTaxons, Taxref, CorTaxonAttribut, BibAttributs
 from sqlalchemy import select, or_
 
@@ -11,7 +12,7 @@ adresses = Blueprint('bib_attribut', __name__)
 
 @adresses.route('/', methods=['GET'])
 @adresses.route('/<int:id>', methods=['GET'])
-@sqlautils.json_resp
+@json_resp
 def get_bibattributs(id = None):
     if id:
         data = db.session.query(BibAttributs).filter_by(id_attribut=id).first()
@@ -23,7 +24,7 @@ def get_bibattributs(id = None):
 
 @adresses.route('/<regne>', methods=['GET'])
 @adresses.route('/<regne>/<group2_inpn>', methods=['GET'])
-@sqlautils.json_resp
+@json_resp
 def get_bibattributsbyTaxref(regne, group2_inpn = None):
     q = db.session.query(BibAttributs)
     if regne :

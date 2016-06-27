@@ -3,9 +3,10 @@ from flask import jsonify, json, Blueprint
 from flask import request, Response
 
 from server import db
-from ..utils import sqlalchemy as sqlautils
+from ..utils.utilssqlalchemy import json_resp
 from .models import BibTaxons, Taxref, CorTaxonAttribut, CorTaxonListe
-from sqlalchemy import create_engine, MetaData, select, Table, func
+from sqlalchemy import func
+
 import importlib
 
 fnauth = importlib.import_module("apptax.flaskmodule-UserHub-auth.routes")
@@ -13,7 +14,7 @@ fnauth = importlib.import_module("apptax.flaskmodule-UserHub-auth.routes")
 adresses = Blueprint('bib_taxons', __name__)
 
 @adresses.route('/', methods=['GET'])
-@sqlautils.json_resp
+@json_resp
 def get_bibtaxons():
     bibTaxonColumns = BibTaxons.__table__.columns
     taxrefColumns = Taxref.__table__.columns
@@ -55,7 +56,7 @@ def get_bibtaxons():
 
 
 @adresses.route('/<int:id_taxon>', methods=['GET'])
-@sqlautils.json_resp
+@json_resp
 def getOne_bibtaxons(id_taxon):
     bibTaxon =db.session.query(BibTaxons).filter_by(id_taxon=id_taxon).first()
 
@@ -127,7 +128,7 @@ def insertUpdate_bibtaxons(id_taxon=None):
 
 @adresses.route('/<int:id_taxon>', methods=['DELETE'])
 @fnauth.check_auth(4)
-@sqlautils.json_resp
+@json_resp
 def delete_bibtaxons(id_taxon):
     bibTaxon =db.session.query(BibTaxons).filter_by(id_taxon=id_taxon).first()
     db.session.delete(bibTaxon)

@@ -6,9 +6,9 @@ from flask import jsonify,  Response
 import json
 
 from functools import wraps
-from server import app_globals, db
 
-from sqlalchemy import create_engine, MetaData, Table
+from server import app_globals, db
+from sqlalchemy import Table, create_engine, MetaData
 
 class GenericTable:
     def __init__(self, tableName, schemaName):
